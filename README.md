@@ -4,12 +4,18 @@ F.CSM311 Lab14: Postman collection + Newman CI.
 
 ## API
 
-Сонгосон API: JSONPlaceholder
+Сонгосон хувилбар: Хувилбар 2 - Бие даалт 11-ийн API-г дахин ашиглах.
+
+Энэ project-д Lab11 Tic Tac Toe logic дээр суурилсан local Express REST API байгаа:
+
+```text
+server/index.js
+```
 
 Base URL:
 
 ```text
-https://jsonplaceholder.typicode.com
+http://localhost:3014
 ```
 
 Auth шаардлагагүй.
@@ -24,22 +30,25 @@ postman/collection.json
 postman/env.dev.json
 postman/env.ci.json
 reports/api.html
+server/index.js
 README.md
 REFLECTION.md
+TAILBAR.md
 ```
 
 ## Requests
 
-Collection дотор нийт 8 request байгаа:
+Collection дотор нийт 9 request байгаа:
 
-1. Happy GET - list posts
-2. GET by chained id
-3. GET by id - post 1
-4. POST create post
-5. PUT update post
-6. PATCH update title
-7. DELETE post
-8. Error case - missing post
+1. `GET /health`
+2. `POST /games`
+3. `GET /games/{{gameId}}`
+4. `POST /games/{{gameId}}/moves`
+5. `PUT /games/{{gameId}}/reset`
+6. `POST /games/{{gameId}}/moves` invalid payload буюу 400 negative test
+7. `DELETE /games/{{gameId}}`
+8. `POST /games/missing-game/moves` буюу 404 negative test
+9. `GET /not-found` буюу unknown route 404 test
 
 ## Local run
 
@@ -49,7 +58,13 @@ Dependencies суулгах:
 npm install
 ```
 
-CLI дээр тест ажиллуулах:
+API server асаах:
+
+```bash
+npm start
+```
+
+Өөр terminal дээр Newman test ажиллуулах:
 
 ```bash
 npm run test:api
@@ -75,7 +90,7 @@ GitHub Actions workflow:
 .github/workflows/api-tests.yml
 ```
 
-Workflow нь `push` болон `pull_request` дээр Newman ажиллуулж, `reports/` хавтсыг artifact болгон upload хийнэ.
+Workflow нь `push` болон `pull_request` дээр dependency суулгаж, local API server асаагаад Newman тест ажиллуулна. Дараа нь `reports/` хавтсыг artifact болгон upload хийнэ.
 
 ## Secret handling
 

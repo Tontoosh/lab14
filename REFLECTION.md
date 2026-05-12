@@ -2,20 +2,20 @@
 
 ## 1. Аль assertion хамгийн их үнэ цэнэтэй байсан бэ?
 
-Business rule болон schema/property assertion хамгийн үнэ цэнэтэй санагдсан. Status code 200 байх нь request амжилттай явсныг харуулдаг ч response-ийн contract зөв эсэхийг бүрэн батлахгүй. Жишээ нь `GET /posts` дээр body нь array байх, эхний post нь `id`, `title`, `body`, `userId` талбартай байхыг шалгаснаар client талын код найдаж хэрэглэдэг structure хэвээр байгаа эсэхийг илүү бодитоор хамгаалж байна.
+Schema/property болон business rule assertion хамгийн үнэ цэнэтэй санагдсан. Status code 200 эсвэл 201 байх нь request амжилттай явсныг харуулдаг ч response client-д хэрэгтэй бүтэцтэй байгаа эсэхийг батлахгүй. Жишээ нь game үүсгэхэд `id`, `cells`, `currentPlayer`, `status`, `canUndo` талбарууд байгаа эсэх, board яг 9 cell-тэй эсэхийг шалгаснаар Tic Tac Toe UI найдаж хэрэглэдэг contract хамгаалагдаж байна.
 
 ## 2. Negative test ямар алдааг олох вэ?
 
-`GET /posts/999999` request нь байхгүй resource авахад API 404 буцааж байгаа эсэхийг шалгана. Энэ тест байхгүй бол API алдаатай id дээр 200 болон хоосон object буцаах, эсвэл 500 internal error өгөх зэрэг contract-ийн асуудал анзаарагдахгүй. Negative path нь хэрэглэгч буруу id оруулах, устсан resource руу хандах зэрэг бодит нөхцөлийг төлөөлдөг.
+`POST /games/{{gameId}}/moves` request дээр `x: 9` явуулж 400 буцаахыг шалгасан. Tic Tac Toe board нь зөвхөн 0-2 координаттай тул ийм payload зөвшөөрөгдвөл server буруу index дээр бичих эсвэл runtime алдаа гаргах эрсдэлтэй. Мөн `POST /games/missing-game/moves` болон `GET /not-found` дээр 404 буцаахыг шалгасан. Энэ нь байхгүй тоглоом, буруу route зэрэг алдааны замыг contract болгон барьж байгаа.
 
 ## 3. Postman дээр pass байсан тест Newman дээр fail болсон уу?
 
-Энэ collection нь environment variable-уудыг export хийсэн тул Newman дээр мөн адил ажиллахаар бэлтгэгдсэн. Ихэвчлэн Newman дээр fail болдог шалтгаан нь Postman local environment-д байгаа variable export хийгдээгүй байх, token хоосон байх, эсвэл request order өөрчлөгдөж chained variable үүсэхээс өмнө хэрэглэгдэх явдал байдаг. Энэ ажлын collection-д `Happy GET - list posts` request эхэндээ `firstPostId` үүсгээд дараагийн request ашигладаг.
+Local server асаагаагүй үед Newman fail болно. Учир нь collection-ийн `baseUrl` нь `http://localhost:3014` бөгөөд Newman request явуулахын өмнө server ажиллаж байх ёстой. Үүнийг шийдэхийн тулд README-д эхлээд `npm start`, дараа нь `npm run test:api` гэж заасан. GitHub Actions workflow дээр server-ийг background-д асаагаад Newman ажиллуулдаг.
 
 ## 4. Token эсвэл secret-ыг хэрхэн зохицуулсан бэ?
 
-JSONPlaceholder auth шаарддаггүй тул token, API key, password зэрэг secret ашиглаагүй. `env.dev.json` болон `env.ci.json` дотор зөвхөн public `baseUrl` болон тестийн runtime variable-ууд байна. Token шаарддаг API байсан бол real token commit хийхгүй, environment file-д placeholder үлдээгээд GitHub Actions дээр GitHub Secrets-ээс runtime үед оруулах ёстой.
+Энэ Lab11 Tic Tac Toe API auth шаарддаггүй тул token, API key, password зэрэг secret ашиглаагүй. Environment файлууд дотор зөвхөн public local `baseUrl`, runtime-д ашиглагдах `gameId`, `gameName` variable байна. Secret шаарддаг API байсан бол real утгыг commit хийхгүй, GitHub Secrets болон CI runtime substitution ашиглах ёстой.
 
 ## 5. API өөрчлөгдвөл collection-ийн хамгийн эмзэг хэсэг аль вэ?
 
-Response schema болон business rule assertion хамгийн түрүүнд эвдэрнэ. Жишээ нь `posts` resource-ийн `title` нэр өөрчлөгдөх, `id` string болох, эсвэл 404 response body өөр format-тай болох үед тест fail болно. Үүнийг бууруулахын тулд client-д үнэхээр хэрэгтэй contract-ийг л хатуу шалгаж, хэрэггүй implementation detail дээр хэт нарийн assertion бичихгүй байх хэрэгтэй. Мөн `baseUrl` зэрэг давтагдах утгыг environment variable болгосноор endpoint орчин солигдоход collection бүхэлдээ эвдрэх эрсдэл багасна.
+Response schema болон chained request хамгийн түрүүнд эвдрэх магадлалтай. Жишээ нь `POST /games` response `id` буцаахаа больбол дараагийн `GET /games/{{gameId}}`, move, reset, delete request бүгд fail болно. Мөн `cells` array 9 биш болох, `currentPlayer` утга өөр format-тай болох зэрэг өөрчлөлтүүд UI болон тестэд шууд нөлөөлнө. Үүнийг бууруулахын тулд давтагдах URL-ийг `baseUrl` variable болгож, зөвхөн client-д үнэхээр хэрэгтэй contract дээр хатуу assertion бичих хэрэгтэй.

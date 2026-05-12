@@ -2,10 +2,14 @@
   "name": "bie-daalt-14",
   "version": "1.0.0",
   "private": true,
-  "description": "F.CSM311 Lab14 API testing with Postman and Newman.",
+  "description": "F.CSM311 Lab14 API testing with the Lab11 Tic Tac Toe API.",
   "scripts": {
+    "start": "node server/index.js",
     "test:api": "newman run postman/collection.json -e postman/env.dev.json",
     "report:api": "mkdir -p reports && newman run postman/collection.json -e postman/env.dev.json --reporters cli,htmlextra --reporter-htmlextra-export reports/api.html"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
   },
   "devDependencies": {
     "newman": "^6.2.1",

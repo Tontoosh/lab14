@@ -1,25 +1,25 @@
 {
   "info": {
     "_postman_id": "dd940805-7c80-4cc9-b95e-bf4bda14f311",
-    "name": "Lab14 - JSONPlaceholder API",
-    "description": "F.CSM311 Lab14 API testing collection for JSONPlaceholder fake REST API.",
+    "name": "Lab14 - Lab11 Tic Tac Toe API",
+    "description": "F.CSM311 Lab14 collection for the Lab11 Tic Tac Toe API.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Posts",
+      "name": "Game",
       "item": [
         {
-          "name": "Happy GET - list posts",
+          "name": "Happy GET - health",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/posts",
+              "raw": "{{baseUrl}}/health",
               "host": ["{{baseUrl}}"],
-              "path": ["posts"]
+              "path": ["health"]
             },
-            "description": "Returns a list of posts and stores the first id for chained requests."
+            "description": "Checks that the Lab11 Tic Tac Toe API server is running."
           },
           "event": [
             {
@@ -27,93 +27,25 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "const body = pm.response.json();",
                   "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Response under 1500ms', () => pm.expect(pm.response.responseTime).to.be.below(1500));",
+                  "pm.test('Response under 1000ms', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
                   "pm.test('Content-Type is JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
-                  "const posts = pm.response.json();",
-                  "pm.test('Body is non-empty array', () => {",
-                  "  pm.expect(posts).to.be.an('array').that.is.not.empty;",
-                  "});",
-                  "pm.test('First post has numeric id and title', () => {",
-                  "  pm.expect(posts[0]).to.have.property('id');",
-                  "  pm.expect(posts[0].id).to.be.a('number');",
-                  "  pm.expect(posts[0].title).to.be.a('string').and.not.empty;",
-                  "});",
-                  "pm.environment.set('firstPostId', posts[0].id);"
+                  "pm.test('Service status is ok', () => pm.expect(body.status).to.eql('ok'));"
                 ]
               }
             }
           ]
         },
         {
-          "name": "GET by chained id",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/posts/{{firstPostId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["posts", "{{firstPostId}}"]
-            },
-            "description": "Uses the firstPostId variable captured from the list response."
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "const post = pm.response.json();",
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Chained id matches response id', () => pm.expect(String(post.id)).to.eql(String(pm.environment.get('firstPostId'))));",
-                  "pm.test('Post schema has userId id title body', () => {",
-                  "  pm.expect(post).to.include.keys(['userId', 'id', 'title', 'body']);",
-                  "  pm.expect(post.userId).to.be.a('number');",
-                  "  pm.expect(post.body).to.be.a('string').and.not.empty;",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "GET by id - post 1",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/posts/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["posts", "1"]
-            },
-            "description": "Returns one existing post by a fixed id."
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "const post = pm.response.json();",
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Id is exactly 1', () => pm.expect(post.id).to.eql(1));",
-                  "pm.test('Title is a string', () => pm.expect(post.title).to.be.a('string').and.not.empty);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "POST create post",
+          "name": "POST create game",
           "event": [
             {
               "listen": "prerequest",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const suffix = Date.now();",
-                  "pm.environment.set('randomTitle', `lab14 post ${suffix}`);",
-                  "pm.environment.set('randomBody', `generated body ${suffix}`);"
+                  "pm.environment.set('gameName', `Lab11 game ${Date.now()}`);"
                 ]
               }
             },
@@ -122,15 +54,13 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const created = pm.response.json();",
+                  "const game = pm.response.json();",
                   "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Created post has id', () => {",
-                  "  pm.expect(created).to.have.property('id');",
-                  "  pm.expect(created.id).to.be.a('number');",
-                  "});",
-                  "pm.test('Created title matches generated title', () => pm.expect(created.title).to.eql(pm.environment.get('randomTitle')));",
-                  "pm.test('Created userId is valid business value', () => pm.expect(created.userId).to.be.within(1, 10));",
-                  "pm.environment.set('postId', created.id);"
+                  "pm.test('Created game has id', () => pm.expect(game.id).to.be.a('string').and.not.empty);",
+                  "pm.test('Created game starts with X', () => pm.expect(game.currentPlayer).to.eql('X'));",
+                  "pm.test('Board has 9 cells', () => pm.expect(game.cells).to.be.an('array').with.lengthOf(9));",
+                  "pm.test('Created name matches generated name', () => pm.expect(game.name).to.eql(pm.environment.get('gameName')));",
+                  "pm.environment.set('gameId', game.id);"
                 ]
               }
             }
@@ -146,7 +76,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"{{randomTitle}}\",\n  \"body\": \"{{randomBody}}\",\n  \"userId\": 1\n}",
+              "raw": "{\n  \"name\": \"{{gameName}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -154,39 +84,95 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/posts",
+              "raw": "{{baseUrl}}/games",
               "host": ["{{baseUrl}}"],
-              "path": ["posts"]
+              "path": ["games"]
             },
-            "description": "Creates a fake post with random data generated in a pre-request script."
+            "description": "Creates a new Tic Tac Toe game and stores its id for chained requests."
           }
         },
         {
-          "name": "PUT update post",
+          "name": "GET by chained game id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/games/{{gameId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["games", "{{gameId}}"]
+            },
+            "description": "Reads the game created by the previous request."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const game = pm.response.json();",
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Chained id matches response id', () => pm.expect(game.id).to.eql(pm.environment.get('gameId')));",
+                  "pm.test('Game schema is valid', () => pm.expect(game).to.include.keys(['id', 'name', 'cells', 'currentPlayer', 'status', 'canUndo']));",
+                  "pm.test('Initial game is in progress', () => pm.expect(game.status).to.eql('in_progress'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST play move",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"x\": 0,\n  \"y\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/games/{{gameId}}/moves",
+              "host": ["{{baseUrl}}"],
+              "path": ["games", "{{gameId}}", "moves"]
+            },
+            "description": "Plays X at the top-left cell."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const game = pm.response.json();",
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('First cell is X', () => pm.expect(game.cells[0]).to.eql('X'));",
+                  "pm.test('Next player is O', () => pm.expect(game.currentPlayer).to.eql('O'));",
+                  "pm.test('Undo is available after a move', () => pm.expect(game.canUndo).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT reset game",
           "request": {
             "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": 1,\n  \"title\": \"updated lab14 title\",\n  \"body\": \"updated lab14 body\",\n  \"userId\": 1\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/posts/1",
+              "raw": "{{baseUrl}}/games/{{gameId}}/reset",
               "host": ["{{baseUrl}}"],
-              "path": ["posts", "1"]
+              "path": ["games", "{{gameId}}", "reset"]
             },
-            "description": "Replaces an existing fake post and checks that the update is echoed back."
+            "description": "Resets the chained game to an empty board."
           },
           "event": [
             {
@@ -194,22 +180,19 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const updated = pm.response.json();",
+                  "const game = pm.response.json();",
                   "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Updated title persisted in response', () => pm.expect(updated.title).to.eql('updated lab14 title'));",
-                  "pm.test('Updated id and userId are numbers', () => {",
-                  "  pm.expect(updated.id).to.be.a('number');",
-                  "  pm.expect(updated.userId).to.be.a('number');",
-                  "});"
+                  "pm.test('Board is empty after reset', () => pm.expect(game.cells.every(cell => cell === '')).to.eql(true));",
+                  "pm.test('Reset game current player is X', () => pm.expect(game.currentPlayer).to.eql('X'));"
                 ]
               }
             }
           ]
         },
         {
-          "name": "PATCH update title",
+          "name": "Error case - invalid move payload",
           "request": {
-            "method": "PATCH",
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
@@ -219,7 +202,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"patched lab14 title\"\n}",
+              "raw": "{\n  \"x\": 9,\n  \"y\": 0\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -227,11 +210,11 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/posts/1",
+              "raw": "{{baseUrl}}/games/{{gameId}}/moves",
               "host": ["{{baseUrl}}"],
-              "path": ["posts", "1"]
+              "path": ["games", "{{gameId}}", "moves"]
             },
-            "description": "Partially updates the post title."
+            "description": "Negative validation path for an invalid move coordinate."
           },
           "event": [
             {
@@ -239,25 +222,26 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const patched = pm.response.json();",
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Patched title returned', () => pm.expect(patched.title).to.eql('patched lab14 title'));"
+                  "const error = pm.response.json();",
+                  "pm.test('Status 400 for invalid payload', () => pm.response.to.have.status(400));",
+                  "pm.test('Validation error body has message', () => pm.expect(error.error).to.be.a('string').and.not.empty);",
+                  "pm.test('Content-Type is JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));"
                 ]
               }
             }
           ]
         },
         {
-          "name": "DELETE post",
+          "name": "DELETE game",
           "request": {
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/posts/1",
+              "raw": "{{baseUrl}}/games/{{gameId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["posts", "1"]
+              "path": ["games", "{{gameId}}"]
             },
-            "description": "Deletes a fake post and accepts JSONPlaceholder's successful empty response."
+            "description": "Deletes the game created during this run."
           },
           "event": [
             {
@@ -265,8 +249,8 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Delete response is empty object', () => pm.expect(pm.response.json()).to.deep.eql({}));"
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));",
+                  "pm.test('Delete response body is empty', () => pm.expect(pm.response.text()).to.eql(''));"
                 ]
               }
             }
@@ -278,16 +262,31 @@
       "name": "Errors",
       "item": [
         {
-          "name": "Error case - missing post",
+          "name": "Error case - missing game",
           "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/posts/999999",
-              "host": ["{{baseUrl}}"],
-              "path": ["posts", "999999"]
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"x\": 9,\n  \"y\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "description": "Negative test for a post id that does not exist."
+            "url": {
+              "raw": "{{baseUrl}}/games/missing-game/moves",
+              "host": ["{{baseUrl}}"],
+              "path": ["games", "missing-game", "moves"]
+            },
+            "description": "Negative path for a move request against a missing game."
           },
           "event": [
             {
@@ -295,9 +294,36 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status 404 for missing resource', () => pm.response.to.have.status(404));",
-                  "pm.test('Content-Type is JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
-                  "pm.test('Error body is an empty object', () => pm.expect(pm.response.json()).to.deep.eql({}));"
+                  "const error = pm.response.json();",
+                  "pm.test('Status 404 for missing game', () => pm.response.to.have.status(404));",
+                  "pm.test('Error body has message', () => pm.expect(error.error).to.be.a('string').and.not.empty);",
+                  "pm.test('Content-Type is JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Error case - route not found",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/not-found",
+              "host": ["{{baseUrl}}"],
+              "path": ["not-found"]
+            },
+            "description": "Checks the API returns 404 for unknown routes."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const error = pm.response.json();",
+                  "pm.test('Status 404 for unknown route', () => pm.response.to.have.status(404));",
+                  "pm.test('Route error is explicit', () => pm.expect(error.error).to.eql('Route not found'));"
                 ]
               }
             }

@@ -2,22 +2,24 @@
 
 ## Сонгосон API
 
-JSONPlaceholder fake REST API сонгосон.
+Бие даалт 11-ийн Tic Tac Toe server-ийн санаан дээр local REST API үүсгэж тестэлсэн.
 
 ## Brief
 
-JSONPlaceholder нь post, comment, album, photo, todo, user зэрэг resource-уудтай fake online REST API. Энэ лабораторид `posts` resource дээр GET, POST, PUT, PATCH, DELETE болон 404 negative case шалгасан. Бичих үйлдлүүд нь бодит database-д хадгалагдахгүй, гэхдээ API contract-ийн дагуу response буцаадаг тул integration/API test-ийн дадлагад тохиромжтой.
+Lab11-ийн original backend нь Java + NanoHTTPD дээр `localhost:8080`-д ажилладаг Tic Tac Toe server байсан. Lab14-ийн API testing шаардлагад POST/PUT/DELETE, 400 validation, 404 not found зэрэг contract хэрэгтэй тул энэ repository дотор `server/index.js` Express API болгон бэлтгэсэн.
+
+API нь тоглоом үүсгэх, game id-аар авах, move хийх, reset хийх, устгах, мөн алдаатай request-үүдэд 400/404 буцаах endpoint-үүдтэй.
 
 ## Base URL
 
 ```text
-https://jsonplaceholder.typicode.com
+http://localhost:3014
 ```
 
 Postman environment variable:
 
 ```text
-baseUrl=https://jsonplaceholder.typicode.com
+baseUrl=http://localhost:3014
 ```
 
 ## Auth
@@ -27,7 +29,7 @@ Auth шаардлагагүй. Token, API key, secret байхгүй.
 ## Эхний request
 
 ```http
-GET {{baseUrl}}/posts
+GET {{baseUrl}}/health
 ```
 
 Хүлээгдэж буй үр дүн:
