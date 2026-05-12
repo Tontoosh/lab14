@@ -59,6 +59,22 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok", service: "lab11-tictactoe-api" });
 });
 
+app.get("/", (req, res) => {
+  res.json({
+    service: "Lab11 Tic Tac Toe API",
+    status: "running",
+    baseUrl: `http://localhost:${port}`,
+    endpoints: [
+      "GET /health",
+      "POST /games",
+      "GET /games/:id",
+      "POST /games/:id/moves",
+      "PUT /games/:id/reset",
+      "DELETE /games/:id"
+    ]
+  });
+});
+
 app.post("/games", (req, res) => {
   const game = createGame(req.body.name);
   games.set(game.id, game);
