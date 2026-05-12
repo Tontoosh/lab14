@@ -1,0 +1,14 @@
+{
+  "name": "bie-daalt-14",
+  "version": "1.0.0",
+  "private": true,
+  "description": "F.CSM311 Lab14 API testing with Postman and Newman.",
+  "scripts": {
+    "test:api": "newman run postman/collection.json -e postman/env.dev.json",
+    "report:api": "mkdir -p reports && newman run postman/collection.json -e postman/env.dev.json --reporters cli,htmlextra --reporter-htmlextra-export reports/api.html"
+  },
+  "devDependencies": {
+    "newman": "^6.2.1",
+    "newman-reporter-htmlextra": "^1.23.1"
+  }
+}
