@@ -310,3 +310,4 @@ bie-daalt-14/
 Энэ ажлаар Lab11-ийн Tic Tac Toe backend санааг Lab14-ийн API testing шаардлагад тохируулж REST API болгосон. Дараа нь Postman collection үүсгэж happy path, chained request, create, update, delete, negative 400/404 case-үүдийг шалгасан. Newman ашиглан command line-аас тестийг ажиллуулж, HTML report үүсгэсэн. Мөн GitHub Actions workflow бэлдэж CI дээр local API server асаагаад тест ажиллах байдлаар тохируулсан.
 
 Эцсийн байдлаар collection нь 9 request, 30 assertion-той бөгөөд local Newman run дээр бүгд pass болсон.
+# lab14
